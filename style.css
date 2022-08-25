@@ -44,6 +44,30 @@ blockquote {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    overflow: scroll;
+    overflow-x: hidden;
+    max-height: 600px;
+    padding-right: 20px;
+    border-radius: 8px;
+}
+
+
+::-webkit-scrollbar {
+    scrollbar-width: auto;
+    scrollbar-color: #051937 rgba(0, 135, 147,0.5);
+}
+::-webkit-scrollbar {
+    width: 12px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0, 135, 147,0.5);
+    border-radius: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background-color: #051937;
+    border-radius: 10px;
+    border: none;
 }
 
 .topics-container .container-card{
@@ -52,6 +76,7 @@ blockquote {
     border: 3px solid #051937;
     border-radius: 14px;
     min-height: 220px;
+    margin: 25px 0;
 }
 .topics-container .container-card.active-card{
     box-shadow: 1px 1px 3px 4px rgba(5, 25, 55,0.53);
