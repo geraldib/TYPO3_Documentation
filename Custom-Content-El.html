@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TYPO3 CS Elements</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <div class="container">
+        <h1>MY TYPO3 Documentation</h1>  
+        <h2>How to create a Custom Content Element:</h2>
+
+        <p>
+            First we need some basic information about our custom element, or the tab it can belong, if we want our custom elements to be in a unique tab.
+            <strong>Open [All.tsconfig]</strong>
+        </p>
+
+        <blockquote>
+            <pre>
+              <code>
+                #
+                # Custom Content Element
+                #
+                &lt;INCLUDE_TYPOSCRIPT: source="FILE:EXT:youtube_demo/Configuration/TsConfig/Page/CustomElConfig/MYSTRANGEEL.tsconfig">
+              </code>
+            </pre>
+          </blockquote>
+
+        <p>
+            After this we create a new file that will hold the data for the Custom Content Element so we can keep [All.tsconfig] clean. The path I choose
+            youtube_demo/Configuration/TsConfig/Page/CustomElConfig/MYSTRANGEEL.tsconfig. 
+        </p>
+        <p><span class="highlight">*NOTE: "youtube_demo" is my sitepackage name, yours might be different.</span></p>
+        <p><strong>Open [MYSTRANGEEL.tsconfig]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                #############
+                #### RTE ####
+                #############
+                mod.wizards.newContentElement.wizardItems {
+                     strange.header = MyStrangeElements
+                }
+                mod.wizards.newContentElement.wizardItems {
+                   strange {
+                      elements {
+                         pokemonElement {
+                            iconIdentifier = content-target
+                            title = Pokemon Element
+                            description = An element for displaying Pokemons
+                            tt_content_defValues {
+                               CType = pokemon_element
+                            }
+                         }
+                      }
+                      show := addToList(pokemonElement, inheritanceElement)
+                   }
+                }
+              </code>
+            </pre>
+        </blockquote>
+        <div class="img-container"><img src="./img/img1.PNG" /></div>
+        <p>
+            As we can see we have now defined our element "Name", "Ctype", "Description", "Icon". We have also created and specified the new tab this element 
+            will be found. 
+        </p>
+        <p>
+            Now we can go ahead and change the database so we can save our custom element data. We can do this by creating a new table or just add some fields in 
+            <strong>tt_content</strong> table. For this example I will use the tt_content to store our element data.
+        </p>
+        <p><strong>Open [ext_tables.sql]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                #
+                # Add SQL definition of database tables
+                #
+                CREATE TABLE tt_content (
+                -- Pokemon Element Fields
+                selected_pokemon VARCHAR(255) DEFAULT '0' NOT NULL,
+                type_pokemon VARCHAR(255) DEFAULT '0' NOT NULL,
+                image_pokemon int(11) unsigned DEFAULT '0' NOT NULL,
+                );
+              </code>
+            </pre>
+        </blockquote>
+        <p>
+            <span class="highlight">*NOTE: To check an update our database changes we must go to <strong>Maintenance</strong> module and update it using <strong>Analyze Database Structure</strong>.
+            Update everything until you get "Database schema is up to date. Good job!"</span>
+        </p>
+        <div class="img-container"><img src="./img/img2.PNG" /></div>
+        <p>
+            <span class="highlight">*NOTE: Always clear cache when you change something in the backend!</span>
+        </p>
+        <p>
+            Now we can can tell out new element what to save, and what values it needs to store in the fields we just created. We do this using <strong>[tt_content.php]</strong>
+        </p>
+        <p><strong>Open [tt_content.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                <?php
+                defined('TYPO3') or die('Access denied.');
+                // Fields array has been moved here to make code cleaner
+                require_once 'tt_content_fields.php';
+                
+                // Poekmon Element Basic info
+                \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTcaSelectItem(
+                   'tt_content',
+                   'CType',
+                    [
+                        'Pokemon Element',
+                        'pokemon_element',
+                        'content-target',
+                    ],
+                    'textmedia',
+                    'after'
+                );
+                // Here you decide what input fields to show.
+                $GLOBALS['TCA']['tt_content']['types']['pokemon_element'] = [
+                   'showitem' => '
+                         --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:general,
+                            --palette--;;general,
+                            header; Main Header,
+                            bodytext; Main Body,
+                            selected_pokemon; Choose your pokemon,
+                            type_pokemon; Pokemon Radio,
+                            image_pokemon; Pokemon Image,
+                         --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:access,
+                            --palette--;;hidden,
+                            --palette--;;access,
+                      ',
+                   'columnsOverrides' => [
+                      'bodytext' => [
+                         'config' => [
+                            'enableRichtext' => true,
+                            'richtextConfiguration' => 'default',
+                         ],
+                      ],
+                   ],
+                ];
+                
+                // Add this fields to db
+                \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_content', $allFields);        
+              </code>
+            </pre>
+        </blockquote>
+        <p>
+            As I have commented this is only part of the file the fields array I have added to a new file to make this file more clean. In this file we decide what input fields will
+            be shown. And update the database,
+        </p>
+        <p><strong>Open [tt_content_fields.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                <?php
+                defined('TYPO3') or die('Access denied.');
+                
+                // All fields
+                $allFields = [
+                   'selected_pokemon' => [
+                      'exclude' => 0,
+                      'label' => 'LLL:EXT:examples/Resources/Private/Language/locallang_db.xlf:tt_content.selected_pokemon',
+                      'config' => [
+                         'type' => 'select',
+                         'renderType' => 'selectSingle',
+                         'items' => [
+                            ['Pikachu', 'pikachu'],
+                            ['Squirtle', 'squirtle'],
+                            ['Bulbasaur', 'bulbasaur'],
+                            ['Charmander', 'charmander'],
+                         ],
+                         'default' => 'pikachu'
+                      ],
+                   ],
+                   'type_pokemon' => [
+                      'exclude' => 0,
+                      'label' => 'LLL:EXT:examples/Resources/Private/Language/locallang_db.xlf:tt_content.type_pokemon',
+                      'config' => [
+                            'type' => 'radio',
+                            'items' => [
+                               ['Water', 'water'],
+                               ['Fire', 'fire'],
+                               ['Grass', 'grass'],
+                            ],
+                      ],
+                   ],
+                   'image_pokemon' => [
+                      'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:sys_file_reference.image_pokemon',
+                      'config' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getFileFieldTCAConfig('image', [
+                         'appearance' => [
+                            'createNewRelationLinkTitle' => 'LLL:EXT:frontend/Resources/Private/Language/Database.xlf:tt_content.asset_references.image_pokemon'
+                         ],
+                      ], $GLOBALS['TYPO3_CONF_VARS']['SYS']['mediafile_ext'])
+                   ],
+                 ];    
+              </code>
+            </pre>
+        </blockquote>
+        <p><span class="highlight">*NOTE: Flush all caches!</span></p>
+        <p>
+            We have added our input fields, we have three input fields as we have created to new fields in tt_content table. Now our new custom content element is working fine. We can see it in backend and save our fields.
+        </p>
+        <div class="img-container"><img src="./img/img3.PNG" /></div>
+
+        <p>
+           Now that in our backend everything is working we can try to add this information to backend and display somehow. First we must decide what information will travel to front end.
+           We do this by using typoscript.
+        </p>
+        <p><strong>Open [setup.typoscript]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                #########################
+                #### Content Element ####
+                #########################
+                lib.contentElement {
+                    templateRootPaths.200 = EXT:youtube_demo/Resources/Private/Templates/CustomContentEl/
+                }
+                tt_content {
+                    pokemon_element =< lib.contentElement
+                    pokemon_element {
+                        templateName = PokemonStarters
+                        dataProcessing{
+                            10 = TYPO3\CMS\Frontend\DataProcessing\FilesProcessor
+                            10 {
+                                references.fieldName = image
+                                as = pokemon_images
+                            }
+                        }
+                    }
+                }   
+              </code>
+            </pre>
+        </blockquote>
+        <p>
+            As we can see in the code above we took an images and put them in a new array, we also decided the path and html file that will be used 
+            to display this content element. Path "EXT:youtube_demo/Resources/Private/Templates/CustomContentEl/" and File Name "PokemonStarters". 
+         </p>
+         <p><span class="highlight">*NOTE: Don't forget to use you own sitepackage name in path!</span></p>
+         <p>
+            Now we will open the html file and display our Custom Content Element to all our website users.
+         </p>
+         <p><strong>Open [PokemonStarters.html]</strong></p>
+         <blockquote>
+            <pre>
+              <code>
+                &lt;html data-namespace-typo3-fluid="true"
+                    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers">
+                    &lt;h2>{data.header}&lt;/h2>
+                    &lt;f:for each="{pokemon_images}" as="pokemon_img">
+                        &lt;f:image class="pokemon-image" image="{pokemon_img}" />
+                    &lt;/f:for>
+                    &lt;div>&lt;f:format.html>{data.bodytext}&lt;/f:format.html>&lt;/div>
+                    &lt;p>&lt;strong>Name:&lt;/strong> {data.selected_pokemon}&lt;/p>
+                    &lt;p>&lt;strong>Type:&lt;/strong> {data.type_pokemon }&lt;/p>
+                &lt;/html>  
+              </code>
+            </pre>
+        </blockquote>
+        <p><span class="highlight">*NOTE: Flush frontend caches</span></p>
+        <div class="img-container"><img src="./img/img4.PNG" /></div>
+    </div>   
+
+	<script src="index.js"></script>
+  </body>
+</html>
