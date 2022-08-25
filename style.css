@@ -115,3 +115,6 @@ blockquote {
     color: yellow;
     text-decoration: none;
 }
+.footer-fade{
+    opacity: 0.3;
+}
