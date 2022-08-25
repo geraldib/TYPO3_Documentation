@@ -17,11 +17,382 @@
             Different from other fields this one is a little more complex. We cannot use only the <strong>tt_content</strong> table to achive this, we will need to create a new table 
             that will keep track of all the repeated children of the custom element.
         </p>
-        <p>
-          First lets start with the basics
-        </p>
-    </div>   
 
+        <p>
+          First we need some basic information about our custom element, or the tab it can belong, if we want our custom elements to be in a unique tab.
+          <strong>Open [All.tsconfig]</strong>
+        </p>
+
+        <blockquote>
+          <pre>
+            <code>
+              #
+              # Custom Content Element
+              #
+              &lt;INCLUDE_TYPOSCRIPT: source="FILE:EXT:youtube_demo/Configuration/TsConfig/Page/CustomElConfig/MYSTRANGEEL.tsconfig">
+            </code>
+          </pre>
+        </blockquote>
+
+        <p>
+          After this we create a new file that will hold the data for the Custom Content Element so we can keep [All.tsconfig] clean. The path I choose
+          youtube_demo/Configuration/TsConfig/Page/CustomElConfig/MYSTRANGEEL.tsconfig. 
+        </p>
+        <p><span class="highlight">*NOTE: "youtube_demo" is my sitepackage name, yours might be different.</span></p>
+        <p><strong>Open [MYSTRANGEEL.tsconfig]</strong></p>
+        <blockquote>
+          <pre>
+            <code>
+              #############
+              #### RTE ####
+              #############
+              mod.wizards.newContentElement.wizardItems {
+                    strange.header = MyStrangeElements
+              }
+              mod.wizards.newContentElement.wizardItems {
+                  strange {
+                    elements {
+                      inheritanceElement {
+                        iconIdentifier = content-target
+                        title = Inheritance Element
+                        description = An element for testing inheritance
+                        tt_content_defValues {
+                           CType = inheritance_element
+                        }
+                      }
+                    }
+                    show := addToList(pokemonElement, inheritanceElement)
+                  }
+              }
+            </code>
+          </pre>
+        </blockquote>
+        <div class="img-container"><img src="./img/img5.PNG" /></div>
+        <p>
+          As we can see we have now defined our element "Name", "Ctype", "Description", "Icon". We have also created and specified the new tab this element 
+          will be found. 
+        </p>
+        <p>
+            Now we can go ahead and change the database so we can save our custom element data. We can do this by creating a new table or just add some fields in 
+            <strong>tt_content</strong> table. In this example will will have to change both. We need to add a new field to <strong>tt_content</strong> table so we 
+            can reference our new table data. So let us start with the database changes first.
+        </p>
+        <p><strong>Open [ext_tables.sql]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                #
+                # Add SQL definition of database tables
+                #
+                CREATE TABLE tt_content (
+                  -- Inheritance Fields
+                  mse_list_item int(11) unsigned DEFAULT '0' NOT NULL,
+                );
+                CREATE TABLE mse_tb_my_list (
+                  parent_uid int(11) DEFAULT '0' NOT NULL,
+                  parent_table varchar(255) DEFAULT '' NOT NULL,
+                  title varchar(255) DEFAULT '' NOT NULL
+                );
+              </code>
+            </pre>
+        </blockquote>
+        <p>
+          <span class="highlight">*NOTE: To check an update our database changes we must go to <strong>Maintenance</strong> module and update it using <strong>Analyze Database Structure</strong>.
+          Update everything until you get "Database schema is up to date. Good job!"</span>
+        </p>
+        <div class="img-container"><img src="./img/img2.PNG" /></div>
+        <p>
+            <span class="highlight">*NOTE: Always clear cache when you change something in the backend!</span>
+        </p>
+        <div class="img-container"><img src="./img/img6.PNG" /></div>
+        <p>
+          As we see in the image above a new table was created in database now we have to tell our <strong>Content Element</strong> how to interact with it. We need to modify a few 
+          files for this.
+        </p>
+        <p><strong>Open [tt_content.php]</strong></p> 
+        <blockquote>
+          <pre>
+            <code>
+              &lt;?php
+              defined('TYPO3') or die('Access denied.');
+              // Fields array has been moved here to make code cleaner
+              require_once 'tt_content_fields.php';
+              
+              // Iheritance Element
+              \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTcaSelectItem(
+                'tt_content',
+                'CType',
+                  [
+                      'Inheritance Element',
+                      'inheritance_element',
+                      'content-target',
+                  ],
+                  'textmedia',
+                  'after'
+              );
+              $GLOBALS['TCA']['tt_content']['types']['inheritance_element'] = [
+                'showitem' => '
+                    --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:general,
+                    --palette--;;general,
+                    header; List Header,
+                    mse_list_item; Label,
+                    --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:access,
+                      --palette--;;hidden,
+                      --palette--;;access,
+                ',
+                'canNotCollapse' => 1,
+              ];
+              
+              // Add this fields to db
+              \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('tt_content', $allFields);        
+            </code>
+          </pre>
+        </blockquote>
+        <p>
+          As I have commented this is only part of the file the fields array I have added to a new file to make this file more clean. In this file we decide what input fields will
+          be shown. And update the database,
+        </p>
+        <p><strong>Open [tt_content_fields.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;?php
+                defined('TYPO3') or die('Access denied.');
+                
+                // All fields
+                $allFields = [
+                   'mse_list_item' => [
+                      'exclude' => true,
+                      'label' => 'List Item',
+                      'config' => [
+                          'appearance' => [
+                              'collapseAll' => '1',
+                              'enabledControls' => [
+                                  'dragdrop' => '1',
+                              ],
+                              'levelLinksPosition' => 'bottom',
+                              'useSortable' => '1',
+                          ],
+                          'foreign_field' => 'parent_uid',
+                          'foreign_table' => 'mse_tb_my_list',
+                          'foreign_table_field' => 'parent_table',
+                          'maxitems' => '20',
+                          'minitems' => '3',
+                          'type' => 'inline',
+                      ],
+                   ],
+                 ];    
+              </code>
+            </pre>
+        </blockquote>
+        <p>
+          Now we should configure our new table logic. First we should create another file in <strong>TCA</strong> with the name of the new table in our case is "mse_tb_my_list" with
+          the .php extension in the end.
+        </p>
+        <p><strong>Open [mse_tb_my_list.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;?php
+                return [
+                      'ctrl' => [
+                          'title' => 'Label',
+                          'label' => 'title',
+                          'tstamp' => 'tstamp',
+                          'crdate' => 'crdate',
+                          'cruser_id' => 'cruser_id',
+                          'sortby' => 'sorting',
+                          'versioningWS' => true,
+                          'languageField' => 'sys_language_uid',
+                          'transOrigPointerField' => 'l10n_parent',
+                          'transOrigDiffSourceField' => 'l10n_diffsource',
+                          'delete' => 'deleted',
+                          'hideTable' => true,
+                          'enablecolumns' => [
+                              'disabled' => 'hidden',
+                          ],
+                          'searchFields' => 'title',
+                      ],
+                      'interface' => [
+                          'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, title',
+                      ],
+                      'columns' => [
+                          'sys_language_uid' => [
+                              'exclude' => true,
+                              'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
+                              'config' => [
+                                  'type' => 'select',
+                                  'renderType' => 'selectSingle',
+                                  'special' => 'languages',
+                                  'items' => [
+                                      [
+                                          'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.allLanguages',
+                                          -1,
+                                          'flags-multiple'
+                                      ]
+                                  ],
+                                  'default' => 0,
+                              ],
+                          ],
+                          'l10n_parent' => [
+                              'displayCond' => 'FIELD:sys_language_uid:>:0',
+                              'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
+                              'config' => [
+                                  'type' => 'select',
+                                  'renderType' => 'selectSingle',
+                                  'default' => 0,
+                                  'items' => [
+                                      ['', 0],
+                                  ],
+                                  'foreign_table' => 'mse_tb_my_list',
+                                  'foreign_table_where' => 'AND {#mse_tb_my_list}.{#pid}=###CURRENT_PID### AND {#mse_tb_my_list}.{#sys_language_uid} IN (-1,0)',
+                              ],
+                          ],
+                          'l10n_diffsource' => [
+                              'config' => [
+                                  'type' => 'passthrough',
+                              ],
+                          ],
+                          't3ver_label' => [
+                              'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.versionLabel',
+                              'config' => [
+                                  'type' => 'input',
+                                  'size' => 30,
+                                  'max' => 255,
+                              ],
+                          ],
+                          'hidden' => [
+                              'exclude' => true,
+                              'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.visible',
+                              'config' => [
+                                  'type' => 'check',
+                                  'renderType' => 'checkboxToggle',
+                                  'items' => [
+                                      [
+                                          0 => '',
+                                          1 => '',
+                                          'invertStateDisplay' => true
+                                      ]
+                                  ],
+                              ],
+                          ],
+                          'title' => [
+                              'exclude' => true,
+                              'label' => 'Your header label',
+                              'config' => [
+                                  'type' => 'input',
+                                  'size' => 30,
+                                  'eval' => 'trim,required'
+                              ],
+                          ],
+                          'parent_uid' => [
+                              'config' => [
+                                  'type' => 'select',
+                                  'renderType' => 'selectSingle',
+                                  'items' => [
+                                      [
+                                          '',
+                                          0,
+                                      ],
+                                  ],
+                                  'default' => 0,
+                                  'foreign_table' => 'tt_content',
+                                  'foreign_table_where' => 'AND tt_content.pid=###CURRENT_PID### AND tt_content.sys_language_uid IN (-1, ###REC_FIELD_sys_language_uid###)',
+                              ],
+                          ],
+                          'parent_table' => [
+                              'config' => [
+                                  'type' => 'passthrough',
+                              ],
+                          ],
+                      ],
+                      'types' => [
+                          '1' => ['showitem' =>
+                              '--div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:general, title, bodytext,
+                               --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:language, sys_language_uid, l10n_parent, l10n_diffsource, 
+                               --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:access, hidden'
+                          ],
+                      ],
+                  ];   
+              </code>
+            </pre>
+        </blockquote>   
+        <p><strong>Open [ext.tables.php]</strong></p>    
+        <blockquote>
+          <pre>
+            <code>
+              &lt;?php
+              defined('TYPO3') or die('Access denied.');
+                 
+              \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('mse_tb_my_list');
+            </code>
+          </pre>
+        </blockquote>
+        <p>
+          We also need to allow this on standart pages else if we try to save the data in our <strong>Content Element</strong> we will get an error.
+        </p>
+        <p><span class="highlight">*NOTE: Flush all caches!</span></p>
+        <div class="img-container"><img src="./img/img7.PNG" /></div>
+        <p>
+          Now we should see this view in the backend. We can modify the inputs, add new children with the "Create new" option and it will on be saved in the new table we created,
+          with a number of reference in the field in tt_content we created.
+        </p>
+        <p>
+        After this we can start with the front end. First we should configure the information traveling to front end. Then we can display them using a template file.
+        </p>
+        <p><strong>Open [setup.typoscript]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                #########################
+                #### Content Element ####
+                #########################
+                lib.contentElement {
+                    templateRootPaths.200 = EXT:youtube_demo/Resources/Private/Templates/CustomContentEl/
+                }
+                tt_content {
+                  inheritance_element =< lib.contentElement
+                  inheritance_element {
+                      templateName = InheritanceTest
+                          dataProcessing.10 = TYPO3\CMS\Frontend\DataProcessing\DatabaseQueryProcessor
+                          dataProcessing.10 {
+                              table = mse_tb_my_list
+                              as = myListItems
+                          }
+                  }
+                }   
+              </code>
+            </pre>
+        </blockquote>
+
+        <p>
+            As we can see in the code above, we took the data from <strong>mse_tb_my_list</strong> which is our new table, and put them in a new array called <strong>myListItems</strong>. We also decided the path and html file that will be used 
+            to display this content element. Path "EXT:youtube_demo/Resources/Private/Templates/CustomContentEl/" and File Name "InheritanceTest". 
+        </p>
+        <p><span class="highlight">*NOTE: Don't forget to use you own sitepackage name in path!</span></p>
+        <p>
+            Now we will open the html file and display our Custom Content Element to all our website users.
+        </p>
+        <p><strong>Open [InheritanceTest.html]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;html data-namespace-typo3-fluid="true"
+                xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers">
+                  &lt;h2>{data.header}&lt;/h2>
+                  &lt;f:for each="{myListItems}" as="listItem">
+                      &lt;f:if condition="{listItem.data.parent_uid} == {data.uid}">
+                        &lt;p>{listItem.data.title}&lt;/p>
+                      &lt;/f:if>
+                  &lt;/f:for>
+                  &lt;hr />
+                &lt;/html>  
+              </code>
+            </pre>
+        </blockquote>
+        <p><span class="highlight">*NOTE: Flush frontend caches</span></p>        
+        <div class="img-container"><img src="./img/img8.PNG" /></div>
+    </div>   
     <div class="footer">
       <div class="footer-container">
           <h3>TYPO3 — the Professional, Flexible Content Management System</h3>
