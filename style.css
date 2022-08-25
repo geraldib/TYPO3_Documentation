@@ -5,6 +5,7 @@ body {
 }
 h1{
     font-size: 65px;
+    margin-top: 0;
 }
 h2{
     font-size: 45px;
@@ -38,6 +39,12 @@ blockquote {
     width: 25%;
     border: 2px solid rgb(11, 11, 22);
     border-radius: 14px;
+    min-height: 220px;
+}
+.topics-container .container-card.active-card{
+    box-shadow: 1px 1px 5px 8px rgba(169,202,227,0.53);
+    -webkit-box-shadow: 1px 1px 5px 8px rgba(169,202,227,0.53);
+    -moz-box-shadow: 1px 1px 5px 8px rgba(169,202,227,0.53);
 }
 .topics-container .container-card a{
     width: 100%;
@@ -52,8 +59,24 @@ blockquote {
 }
 .topics-container .container-card a h3{
     color: white;
+    text-align: center;
 }
 .topics-container .container-card a .topic_image{
     width: 100px;
     height: 100px;
+}
+.button-prev{
+    padding: 12px 24px;
+    background-color: #3d487c;
+    border: none;
+    color: white;
+    border-radius: 20px;
+    font-size: 18px;
+    cursor: pointer;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+}
+.button-prev.button-fade {
+    opacity: 0.3;
 }
