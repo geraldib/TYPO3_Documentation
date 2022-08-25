@@ -11,14 +11,32 @@
     <button class="button-prev" onclick="history.back()"><< Back</button>
     <div class="container">
         <h1>MY TYPO3 Documentation</h1>  
-        <h2>How to create a Custom Content Element:</h2>
+        <h2>How to create a <strong>Custom Content Element</strong> with a repeater field:</h2>
 
         <p>
-            First we need some basic information about our custom element, or the tab it can belong, if we want our custom elements to be in a unique tab.
-            <strong>Open [All.tsconfig]</strong>
+            Different from other fields this one is a little more complex. We cannot use only the <strong>tt_content</strong> table to achive this, we will need to create a new table 
+            that will keep track of all the repeated children of the custom element.
+        </p>
+        <p>
+          First lets start with the basics
         </p>
     </div>   
 
+    <div class="footer">
+      <div class="footer-container">
+          <h3>TYPO3 — the Professional, Flexible Content Management System</h3>
+          <div class="footer-info">
+              <div>
+                  <p>Author: <a href="https://www.linkedin.com/in/gerald-ibra-15a722168/" class="color-y">Gerald Ibra</a></p>
+                  <p>Company: <a href="https://contenance.de/" class="color-y">Contenance GmbH</a></p>
+              </div>
+              <div>
+                  <p>Email1: <a class="color-y" href = "mailto: geri.ibra@gmail.com">ibra@contenance.de</a></p>
+                  <p>Email2: <a class="color-y" href = "mailto: geri.ibra@gmail.com">geri.ibra@gmail.com</a></p>
+              </div>
+          </div>
+      </div>
+    </div>
 	<script src="./custom-content.js"></script>
   </body>
 </html>
