@@ -5,9 +5,14 @@ html, body{
     margin: 0;
 }
 body {
-    background-color: #728a89;
+    background-color: #006972;
     color: white;
     font-family: "PT Sans", Calibri, Tahoma, sans-serif;
+}
+.homepage-background{
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(to left bottom, #051937, #004d7a, #008793, #00bf72, #a8eb12);
 }
 h1{
     font-size: 65px;
@@ -42,15 +47,16 @@ blockquote {
 }
 
 .topics-container .container-card{
+    background-color: #008793;
     width: 30%;
-    border: 2px solid rgb(18, 18, 48);
+    border: 3px solid #051937;
     border-radius: 14px;
     min-height: 220px;
 }
 .topics-container .container-card.active-card{
-    box-shadow: 1px 1px 5px 8px rgba(169,202,227,0.53);
-    -webkit-box-shadow: 1px 1px 5px 8px rgba(169,202,227,0.53);
-    -moz-box-shadow: 1px 1px 5px 8px rgba(169,202,227,0.53);
+    box-shadow: 1px 1px 3px 4px rgba(5, 25, 55,0.53);
+    -webkit-box-shadow: 1px 1px 3px 4px rgba(5, 25, 55,0.53);
+    -moz-box-shadow: 1px 1px 3px 4px rgba(5, 25, 55,0.53);
 }
 .topics-container .container-card a{
     width: 100%;
@@ -73,7 +79,7 @@ blockquote {
 }
 .button-prev{
     padding: 12px 24px;
-    background-color: #346270;
+    background-color: #008793;
     border: none;
     color: white;
     border-radius: 20px;
@@ -88,7 +94,7 @@ blockquote {
 }
 .footer{
     width: 100%;
-    background-color: #346270;
+    background-color: #008793;
     position: fixed;
     bottom: 0;
 }
