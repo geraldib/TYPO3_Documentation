@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TYPO3 CS Elements</title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <button class="button-prev" onclick="history.back()"><< Back</button>
+
+    <div class="container">
+        <h1>MY TYPO3 Documentation</h1>  
+        <h2>How to create a new functionality using MVC:</h2>
+        <p>
+            In this tutorial we are going to learn to create new functionalities on our TYPO3 project by using the MVC framework TYPO3 ships with.
+            MVC stands for Model View Controller. We gonna learn how the MVC works during this tutorial as well. Let us start!
+        </p>
+        <p><span class="highlight">*NOTE: First create a new file in Classes/Domain/Model [Product.php].</span></p>
+        <p><strong>Open [Product.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;?php
+                namespace Contencance\YoutubeDemo\Domain\Model;
+
+                use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+
+                class Product extends AbstractEntity
+                {
+
+                    /**
+                    * The name of the product
+                    *
+                    * @var string
+                    **/
+                    protected $name = '';
+
+                    /**
+                    * The description of the product
+                    *
+                    * @var string
+                    **/
+                    protected $description = '';
+
+                    /**
+                    * The quantity in the store inventory
+                    *
+                    * @var int
+                    **/
+                    protected $quantity = 0;
+
+                    /**
+                    * Product constructor.
+                    *
+                    * @param string $name
+                    * @param string $description
+                    * @param int $quantity
+                    */
+                    public function __construct($name = '', $description = '', $quantity = 0)
+                    {
+                        $this->setName($name);
+                        $this->setDescription($description);
+                        $this->setQuantity($quantity);
+                    }
+
+                    /**
+                    * Sets the name of the product
+                    *
+                    * @param string $name
+                    */
+                    public function setName(string $name)
+                    {
+                        $this->name = $name;
+                    }
+
+                    /**
+                    * Gets the name of the product
+                    *
+                    * @return string
+                    */
+                    public function getName()
+                    {
+                        return $this->name;
+                    }
+
+                    /**
+                    * Sets the description of the product
+                    *
+                    * @param string $description
+                    */
+                    public function setDescription(string $description)
+                    {
+                        $this->description = $description;
+                    }
+
+                    /**
+                    * Gets the description of the product
+                    *
+                    * @return string
+                    */
+                    public function getDescription()
+                    {
+                        return $this->description;
+                    }
+
+                    /**
+                    * Sets the quantity in the store inventory of the product
+                    *
+                    * @param int $quantity
+                    */
+                    public function setQuantity(int $quantity)
+                    {
+                        $this->quantity = $quantity;
+                    }
+
+                    /**
+                    * Gets the quantity in the store inventory of the product
+                    *
+                    * @return int
+                    */
+                    public function getQuantity()
+                    {
+                        return $this->quantity;
+                    }
+
+                }
+              </code>
+            </pre>
+        </blockquote>
+        <p>
+            Model stands for the first 'M' in MVC. This class creates a model of a database table. This class will hold every fields from database as properties. It will also 
+            have getters and setters to modify its value as well a the contructor. By using this class we can modify directly a database entry without touching sql code.
+        </p>
+        <p>
+            We have created the model but no real database yet, so lets begin!
+        </p>
+        <p><strong>Open [ext_tables.sql]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                CREATE TABLE tx_youtubedemo_domain_model_product (
+                    uid int(11) unsigned DEFAULT '0' NOT NULL auto_increment,
+                    pid int(11) DEFAULT '0' NOT NULL,
+                 
+                    name varchar(255) DEFAULT '' NOT NULL,
+                    description text NOT NULL,
+                    quantity int(11) DEFAULT '0' NOT NULL,
+                 
+                    PRIMARY KEY (uid),
+                    KEY parent (pid)
+                 );
+              </code>
+            </pre>
+        </blockquote>
+        <p><span class="highlight">*IMPORTANT: There is a specific way to name tables so it know which model to use.</span></p>
+        <p>
+            <strong>tx_youtubedemo_domain_model_product</strong> is the table name from which you start with "tx" then extesion name mine is "youtubedemo" after is path to model
+             "domain" and "model" and finaly the name of model "product" in my case. All should be lower case and without special characters. The "_" is reserved as a special character
+             to divide these components if your extension has a name with "_" symbol that write it without this.
+        </p>
+        <p>
+            Now that the table is created we should <strong>Analyze the Database</strong> and update it. After this let us configure this table in TCA. Create a php file with the name of
+            the table in Configuration/TCA
+        </p>
+        <p><strong>Open [tx_youtubedemo_domain_model_product.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;?php
+                return [
+                    'ctrl' => [
+                        'title' => 'Product',
+                        'label' => 'name',
+                        'iconfile' => 'EXT:youtube_demo/Resources/Public/Icons/cat.svg'
+                    ],
+                    'columns' => [
+                        'name' => [
+                            'label' => 'Name',
+                            'config' => [
+                                'type' => 'input',
+                                'size' => '20',
+                                'eval' => 'trim'
+                            ],
+                        ],
+                        'description' => [
+                            'label' => 'Description',
+                            'config' => [
+                                'type' => 'text',
+                                'eval' => 'trim'
+                            ],
+                        ],
+                        'quantity' => [
+                            'label' => 'Quantity',
+                            'config' => [
+                                'type' => 'input',
+                                'size' => '4',
+                                'eval' => 'int'
+                            ],
+                        ],
+                    ],
+                    'types' => [
+                        '0' => ['showitem' => 'name, description, quantity'],
+                    ],
+                ];
+              </code>
+            </pre>
+        </blockquote>
+        <p>
+            Now let us Create a Folder called <strong>Data</strong> in Page tree and inside this another folder called <strong>Product</strong> enable both of them.
+        </p>
+        <div class="img-container"><img src="../img/img9.PNG" /></div>
+        <p>Let us open <strong>Product</strong> in List mode and add some records in it</p>
+        <div class="img-container"><img src="../img/img10.PNG" /></div>
+        <p>After this click on Product in the end. I have it with a cat icon you can modify that in [tx_youtubedemo_domain_model_product.php]</p>
+        <div class="img-container"><img src="../img/img11.PNG" /></div>
+        <p>Fill the fields and if we check now the folder of Product it is added there. Also in database as well.</p>
+        <div class="img-container"><img src="../img/img12.PNG" /></div>
+        <div class="img-container"><img src="../img/img13.PNG" /></div>
+        <p>
+            Before we do anything else, we should create a repository in "Classes/Domain/Repository". The repository uses the model and creates for a us a nice couple of functions which we can use
+            to update the database or get data from database. All this without using sql.
+        </p>
+        <p><span class="highlight">*IMPORTANT: There is a specific naming convetion to be followed as described below.</span></p>
+        <p>Repository name is: Name of the model with Repository attached to in both with capital first letters. In my example that is ProductRepository</p>
+        <p><strong>Open [ProductRepository.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;?php
+                namespace Contencance\YoutubeDemo\Domain\Repository;
+                use TYPO3\CMS\Extbase\Persistence\Repository;
+                /**
+                * Class ProductRepository
+                */
+                class ProductRepository extends Repository
+                {
+
+                }
+              </code>
+            </pre>
+        </blockquote>
+        <p>Don't worry because it is empty it already is inheriting all the method we need from the Repository class</p>
+        <p>After this it is time to create the Controller in "Classes/Controller" a controller called [StoreInventoryController.php]</p>
+        <p><strong>Open [StoreInventoryController.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;?php
+                namespace MyVendor\StoreInventory\Controller;
+                use MyVendor\StoreInventory\Domain\Repository\ProductRepository;
+                use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+                class StoreInventoryController extends ActionController
+                {
+                    private $productRepository;
+
+                    /**
+                     * Inject the product repository
+                     *
+                     * @param \MyVendor\StoreInventory\Domain\Repository\ProductRepository $productRepository
+                     */
+                    public function injectProductRepository(ProductRepository $productRepository)
+                    {
+                        $this->productRepository = $productRepository;
+                    }
+                
+                    public function listAction()
+                    {
+                        $products = $this->productRepository->findAll();
+                        $this->view->assign('products', $products);
+                    }
+                }
+              </code>
+            </pre>
+        </blockquote>
+        <p><span class="highlight"><strong>*Recap</strong></span></p>
+        <p><span class="highlight">
+            Controller act as a middleman controlling the flow of information from Model/Repository to View. Model has the database table model and the fields and methods 
+            for getters and setters. Repository based on the model it extends it functionality by offering us some neat methods like 'findAll()' we have used in 'listAction()' 
+            in controller. After we get the results we add them to products variable and then return them to the view in which we can display them as we like.
+        </span></p>
+        <div class="img-container"><img src="../img/img18.PNG" /></div>
+        <p>
+            Now it is time for the frontend. First we create a folder in template. The folder should have the Controller name without the 'Controller',
+            for me it is "StoreInventory". Inside this folder create a new html file based on the method name without the 'Action' with capital first letter,
+            for me it is [List.html]
+        </p>
+        <p><strong>Open [List.html]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers">
+                    &lt;table border="1" cellspacing="1" cellpadding="5">
+                        &lt;tr>
+                            &lt;td>Product name&lt;/td>
+                            &lt;td>Product description&lt;/td>
+                            &lt;td>Quantity&lt;/td>
+                        &lt;/tr>
+                        &lt;f:for each="{products}" as="product">
+                            &lt;tr>
+                                &lt;td align="top">{product.name}&lt;/td>
+                                &lt;td align="top">
+                                    &lt;f:format.crop maxCharacters="100">{product.description}&lt;/f:format.crop>
+                                &lt;/td>
+                                &lt;td align="top">{product.quantity}&lt;/td>
+                            &lt;/tr>
+                        &lt;/f:for>
+                    &lt;/table>
+                    &lt;/html>
+              </code>
+            </pre>
+        </blockquote>
+        <p>Now the final touches let us register the plugin:</p>
+        <p><strong>Open [tt_content.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;?php
+                defined('TYPO3') or die('Access denied.');
+
+                \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
+                    'youtube_demo',
+                    'InventoryList',
+                    'The Store Inventory List',
+                    'EXT:youtube_demo/Resources/Public/Icons/cat.svg'
+                );
+              </code>
+            </pre>
+        </blockquote>
+        <p>Also let us configured it:</p>
+        <p><strong>Open [ext_localconf.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;?php
+                defined('TYPO3') or die('Access denied.');
+
+                use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
+                use Contencance\YoutubeDemo\Controller\StoreInventoryController;
+
+                /***************
+                * Custom PLugins
+                */
+               ExtensionUtility::configurePlugin(
+                   'youtube_demo',
+                   'InventoryList',
+                   [StoreInventoryController::class => 'list',],
+                   [StoreInventoryController::class => '',],
+               );
+              </code>
+            </pre>
+        </blockquote>
+        <p>Go to the page we want our plugin</p>
+        <div class="img-container"><img src="../img/img13.PNG" /></div>
+        <div class="img-container"><img src="../img/img14.PNG" /></div>
+        <div class="img-container"><img src="../img/img15.PNG" /></div>
+        <div class="img-container"><img src="../img/img16.PNG" /></div>
+        <div class="img-container"><img src="../img/img17.PNG" /></div>
+
+        <p>
+            As always you can now try to experiment with it. We can add other methods to controller. As we saw the controller acts as a middle man by using the database model to get 
+            all the records from the table using methods from repository and returning a view in the template. See you in other tutorials.
+        </p>
+
+    </div>
+    <div class="footer">
+        <div class="footer-container">
+            <h3>TYPO3 — the Professional, Flexible Content Management System</h3>
+            <div class="footer-info">
+                <div>
+                    <p>Author: <a href="https://www.linkedin.com/in/gerald-ibra-15a722168/" class="color-y" target="_blank">Gerald Ibra</a></p>
+                    <p>Company: <a href="https://contenance.de/" class="color-y" target="_blank">Contenance GmbH</a></p>
+                </div>
+                <div>
+                    <p>Email1: <a class="color-y" href = "mailto: geri.ibra@gmail.com">ibra@contenance.de</a></p>
+                    <p>Email2: <a class="color-y" href = "mailto: geri.ibra@gmail.com">geri.ibra@gmail.com</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/topics.js"></script>
+</body>
+</html>
