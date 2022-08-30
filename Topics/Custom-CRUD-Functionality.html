@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TYPO3 CS Elements</title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <button class="button-prev" onclick="history.back()"><< Back</button>
+    <div class="container">
+        <h1>MY TYPO3 Documentation</h1>  
+        <h2>CRUD using TYPO3 MVC Framework:</h2>
+        <p>
+            We will start in this tutorial where we left off from the last one. We already have most of the stuff already done. The only thing left to
+            do is add some new functionalities.
+        </p>
+        <p>
+           Let us first allow some new methods for this plugin.
+        </p>
+        <p><strong>Open [ext_localconf.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;?php
+                defined('TYPO3') or die('Access denied.');
+
+                use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
+                use Contencance\YoutubeDemo\Controller\StoreInventoryController;
+
+                /***************
+                * Custom PLugins
+                */
+               ExtensionUtility::configurePlugin(
+                   'youtube_demo',
+                   'InventoryList',
+                   [StoreInventoryController::class => 'list, edit, store, update, delete,'],
+                   [StoreInventoryController::class => '',],
+               );
+              </code>
+            </pre>
+        </blockquote>
+        <p>
+            After this we will open controller and there we will add all the new methods we need. We want a <strong>"store"</strong> method so we can add 
+            a new entry in database. We also need a <strong>"edit"</strong> method to take us to a new page form with the info of the entry we want to modify, and 
+            <strong>"update"</strong> to update the info. Last a <strong>"delete"</strong> to delete the entry from database.
+        </p>
+        <p><strong>Open [StoreInventoryController.php]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;?php
+
+                namespace Contencance\YoutubeDemo\Controller;
+                
+                use Contencance\YoutubeDemo\Domain\Repository\ProductRepository;
+                use Contencance\YoutubeDemo\Domain\Model\Product;
+                use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+                
+                /**
+                 * Class StoreInventoryController
+                 *
+                 * @package MyVendor\StoreInventory\Controller
+                 */
+                class StoreInventoryController extends ActionController
+                {
+                
+                    /**
+                     * @var ProductRepository
+                     */
+                    private $productRepository;
+                
+                    /**
+                     * Inject the product repository
+                     *
+                     * @param \MyVendor\StoreInventory\Domain\Repository\ProductRepository $productRepository
+                     */
+                    public function injectProductRepository(ProductRepository $productRepository)
+                    {
+                        $this->productRepository = $productRepository;
+                    }
+                
+                    /**
+                     * list Action
+                     *
+                     * @return void
+                     */
+                    public function listAction()
+                    {
+                        $products = $this->productRepository->findAll();
+                        $this->view->assign('products', $products);
+                    }
+                
+                    /**
+                     * store Action
+                     * 
+                     * @return void
+                     */
+                    public function storeAction(Product $product)
+                    {
+                        $request = $_POST["tx_youtubedemo_inventorylist"]["product"]; 
+                        $product->setName($request['name']);
+                        $product->setDescription($request['description']);
+                        $product->setQuantity($request['quantity']);
+                        $this->productRepository->add($product);
+                        return $this->redirect('list');
+                    }
+                
+                    /**
+                     * list Action
+                     *
+                     * @return void
+                     */
+                    public function editAction()
+                    {
+                        $id = $_POST["tx_youtubedemo_inventorylist"]["product"]["uid"]; 
+                        $product = $this->productRepository->findByUid($id);
+                        $this->view->assign('product', $product);
+                    }
+                
+                    public function updateAction()
+                    {
+                        $request = $_POST["tx_youtubedemo_inventorylist"]["product"]; 
+                        $product = $this->productRepository->findByUid($request['uid']);
+                        $product->setName($request['name']);
+                        $product->setDescription($request['description']);
+                        $product->setQuantity($request['quantity']);
+                        $this->productRepository->update($product);
+                        return $this->redirect('list');
+                    }
+                
+                        /**
+                     * list Action
+                     *
+                     * @return void
+                     */
+                    public function deleteAction()
+                    {
+                        $id = $_POST["tx_youtubedemo_inventorylist"]["product"]["uid"]; 
+                        $product = $this->productRepository->findByUid($id);
+                        $this->productRepository->remove($product);
+                        return $this->redirect('list');
+                    }
+                
+                }
+              </code>
+            </pre>
+        </blockquote>
+        <p>
+            Now we add the views. We already have a view in <strong>[StoreInventory]</strong> <strong>[List.html]</strong>
+        </p>
+        <p><strong>Open [List.html]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;div class="products-container">
+                    &lt;h2>Products:&lt;/h2>
+                    &lt;table class="table">
+                       &lt;thead>
+                         &lt;tr>
+                           &lt;th scope="col">#&lt;/th>
+                           &lt;th scope="col">Product name&lt;/th>
+                           &lt;th scope="col">Product description&lt;/th>
+                           &lt;th scope="col">Quantity&lt;/th>
+                           &lt;th scope="col">Edit&lt;/th>
+                           &lt;th scope="col">Delete&lt;/th>
+                         &lt;/tr>
+                       &lt;/thead>
+                       &lt;tbody>
+                          &lt;f:for each="{products}" as="product" key="index">
+                             &lt;tr>
+                                &lt;th scope="row">{index+1}&lt;/th>
+                                &lt;td>{product.name}&lt;/td>
+                                &lt;td>&lt;f:format.crop maxCharacters="100">{product.description}&lt;/f:format.crop>&lt;/td>
+                                &lt;td>{product.quantity}&lt;/td>
+                                &lt;td>
+                                   &lt;f:form action="edit" controller="StoreInventory" objectName="product" method="post">
+                                      &lt;f:form.hidden property="uid" value="{product.uid}" />
+                                      &lt;f:form.button class="btn btn-warning">Edit&lt;/f:form.button>
+                                   &lt;/f:form>
+                                &lt;/td>
+                                &lt;td>
+                                   &lt;f:form action="delete" controller="StoreInventory" objectName="product" method="delete">
+                                      &lt;f:form.hidden property="uid" value="{product.uid}" />
+                                      &lt;f:form.button class="btn btn-danger">Delete&lt;/f:form.button>
+                                   &lt;/f:form>
+                                &lt;/td>
+                              &lt;/tr>
+                          &lt;/f:for>
+                       &lt;/tbody>
+                     &lt;/table>
+                    &lt;h2>Add New Product:&lt;/h2>
+                    &lt;f:form action="store" controller="StoreInventory" objectName="product" method="post">
+                       &lt;div class="form-group">
+                          &lt;label>Name&lt;/label>&lt;br>
+                          &lt;f:form.textfield property="name" class="form-control"/>&lt;br>
+                          &lt;label>Description&lt;/label>&lt;br>
+                          &lt;f:form.textarea property="description" class="form-control"/>&lt;br>
+                          &lt;label>Quantity&lt;/label>&lt;br>
+                          &lt;f:form.textfield property="quantity" class="form-control"/>&lt;br>
+                          &lt;f:form.button class="btn btn-success">Submit&lt;/f:form.button>
+                       &lt;/div>
+                    &lt;/f:form>
+                &lt;/div>
+              </code>
+            </pre>
+        </blockquote>
+        <p>
+            Now finally let also create a html file for edit method to display the edit form. Create the <strong>[Edit.html]</strong> file in same
+            folder as <strong>[List.html]</strong>
+        </p>
+        <p><strong>Open [Edit.html]</strong></p>
+        <blockquote>
+            <pre>
+              <code>
+                &lt;f:form action="update" controller="StoreInventory" objectName="product" method="put">
+                    &lt;div class="form-group">
+                        &lt;label>Name&lt;/label>&lt;br>
+                        &lt;f:form.textfield property="name" value="{product.name}" class="form-control"/>&lt;br>
+                        &lt;label>Description&lt;/label>&lt;br>
+                        &lt;f:form.textarea property="description" value="{product.description}" class="form-control"/>&lt;br>
+                        &lt;label>Quantity&lt;/label>&lt;br>
+                        &lt;f:form.textfield property="quantity" value="{product.quantity}" class="form-control"/>&lt;br>
+                        &lt;f:form.hidden property="uid" value="{product.uid}" />
+                        &lt;f:form.button class="btn btn-warning">Submit&lt;/f:form.button>
+                    &lt;/div>
+                &lt;/f:form>
+              </code>
+            </pre>
+        </blockquote>
+        <div class="img-container"><img src="../img/img19.PNG" /></div>
+    </div>
+    <div class="footer">
+        <div class="footer-container">
+            <h3>TYPO3 — the Professional, Flexible Content Management System</h3>
+            <div class="footer-info">
+                <div>
+                    <p>Author: <a href="https://www.linkedin.com/in/gerald-ibra-15a722168/" class="color-y" target="_blank">Gerald Ibra</a></p>
+                    <p>Company: <a href="https://contenance.de/" class="color-y" target="_blank">Contenance GmbH</a></p>
+                </div>
+                <div>
+                    <p>Email1: <a class="color-y" href = "mailto: geri.ibra@gmail.com">ibra@contenance.de</a></p>
+                    <p>Email2: <a class="color-y" href = "mailto: geri.ibra@gmail.com">geri.ibra@gmail.com</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/topics.js"></script>
+</body>
+</html>
