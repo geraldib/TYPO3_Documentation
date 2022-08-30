@@ -28,6 +28,10 @@ p {
     padding: 50px 5% 140px 5%;
 }
 blockquote {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    justify-content: space-between;
     background-color: #5c6663;
 }
 .highlight{
@@ -149,4 +153,17 @@ blockquote {
 }
 .footer-fade{
     opacity: 0.3;
+}
+
+.clipboard img {
+    margin: 8px;
+    width: 20px;
+    height: 20px;
+    background-color: hsl(185, 88%, 83%);
+    padding: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.clipboard img.clicked-clip{
+    background-color: #5c6663;
 }
