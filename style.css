@@ -71,7 +71,6 @@ blockquote::-webkit-scrollbar-thumb {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    padding-right: 20px;
     border-radius: 8px;
 }
 
@@ -150,15 +149,20 @@ blockquote::-webkit-scrollbar-thumb {
     justify-content: space-between;
     align-items: center;
 }
+.footer .footer-container h3{
+   margin-right: 10px;
+    width: 45%;
+}
 .footer .footer-info h3{
     margin: 0;
+    width: 45%;
 }
 .footer .footer-info p{
     font-size: 12px;
     margin: 0;
 }
 .footer-info{
-    width: 350px;
+    width: 45%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -187,9 +191,25 @@ blockquote::-webkit-scrollbar-thumb {
     .topics-container .container-card{
         width: 45%;
     }
+    h1{
+        font-size: 300%;
+    }
 }
 @media (max-width: 600px){
     .topics-container .container-card{
         width: 100%;
+    }
+    h1{
+        font-size: 250%;
+    }
+    .footer-info{
+        width: 100%;
+    }
+    .footer .footer-container h3{
+        width: 100%;
+    }
+    .footer .footer-container{
+        justify-content: center;
+        flex-wrap: wrap;
     }
 }
