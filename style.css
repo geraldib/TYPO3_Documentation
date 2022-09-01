@@ -23,6 +23,7 @@ h2{
 }
 p {
     font-size: 24px;
+    overflow-wrap: break-word;
 }
 .container {
     padding: 0px 5% 50px 5%;
@@ -64,7 +65,10 @@ blockquote::-webkit-scrollbar-thumb {
 .img-container{
     display: flex;
     justify-content: center;
-    margin: 50px 0;
+    margin: 50px 5%;
+}
+.img-container img{
+    width: 100%;
 }
 .topics-container{
     display: flex;
