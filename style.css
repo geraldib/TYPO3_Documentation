@@ -5,39 +5,61 @@ html, body{
     margin: 0;
 }
 body {
-    background-color: #006972;
-    color: white;
+    color: black;
     font-family: "PT Sans", Calibri, Tahoma, sans-serif;
+    background-color: #FFEDDA;
 }
 .homepage-background{
-    width: 100%;
-    height: 100%;
-    background-image: linear-gradient(to left bottom, #051937, #004d7a, #008793, #00bf72, #a8eb12);
+    background-color: #FFEDDA;
 }
 h1{
     font-size: 65px;
     margin-top: 0;
+    margin-bottom: 0;
 }
 h2{
     font-size: 45px;
+    padding-top: 20px;
 }
 p {
     font-size: 24px;
 }
 .container {
-    padding: 50px 5% 140px 5%;
+    padding: 0px 5% 50px 5%;
+}
+.titlebar{
+    padding: 32px 5%;
+    background-color: #FF8700;
+    color: white;
 }
 blockquote {
     display: flex;
     flex-direction: row-reverse;
     align-items: flex-start;
+    overflow: scroll;
+    overflow-y: hidden;
     justify-content: space-between;
-    background-color: #5c6663;
+    background-color: #cccccc;
+}
+blockquote::-webkit-scrollbar {
+    scrollbar-width: auto;
+}
+blockquote::-webkit-scrollbar {
+    width: 12px;
+    height: 6px;
+}
+blockquote::-webkit-scrollbar-track {
+    border-radius: 8px;
+}
+blockquote::-webkit-scrollbar-thumb {
+    background-color: #333333;
+    border-radius: 10px;
+    border: none;
 }
 .highlight{
     padding: 2px 8px;
-    color: #444c72;
-    background-color: yellow;
+    color: #000000;
+    background-color: #FF8700;
 }
 .img-container{
     display: flex;
@@ -49,9 +71,6 @@ blockquote {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    overflow: scroll;
-    overflow-x: hidden;
-    max-height: 600px;
     padding-right: 20px;
     border-radius: 8px;
 }
@@ -59,33 +78,31 @@ blockquote {
 
 ::-webkit-scrollbar {
     scrollbar-width: auto;
-    scrollbar-color: #051937 rgba(0, 135, 147,0.5);
 }
 ::-webkit-scrollbar {
     width: 12px;
 }
 ::-webkit-scrollbar-track {
-    background: rgba(0, 135, 147,0.5);
     border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb {
-    background-color: #051937;
+    background-color: #333333;
     border-radius: 10px;
     border: none;
 }
 
 .topics-container .container-card{
-    background-color: #008793;
+    background-color: white;
     width: 30%;
-    border: 3px solid #051937;
+    border: 3px solid #FF8700;
     border-radius: 14px;
     min-height: 220px;
     margin: 25px 0;
 }
 .topics-container .container-card.active-card{
-    box-shadow: 1px 1px 3px 4px rgba(5, 25, 55,0.53);
-    -webkit-box-shadow: 1px 1px 3px 4px rgba(5, 25, 55,0.53);
-    -moz-box-shadow: 1px 1px 3px 4px rgba(5, 25, 55,0.53);
+    box-shadow: 1px 1px 3px 4px rgba(255, 135, 0,0.53);
+    -webkit-box-shadow: 1px 1px 3px 4px rgba(255, 135, 0,0.53);
+    -moz-box-shadow: 1px 1px 3px 4px rgba(255, 135, 0,0.53);
 }
 .topics-container .container-card a{
     width: 100%;
@@ -99,7 +116,7 @@ blockquote {
     padding: 20px;
 }
 .topics-container .container-card a h3{
-    color: white;
+    color: black;
     text-align: center;
 }
 .topics-container .container-card a .topic_image{
@@ -109,7 +126,7 @@ blockquote {
 }
 .button-prev{
     padding: 12px 24px;
-    background-color: #008793;
+    background-color: #FF8700;
     border: none;
     color: white;
     border-radius: 20px;
@@ -124,9 +141,8 @@ blockquote {
 }
 .footer{
     width: 100%;
-    background-color: #008793;
-    position: fixed;
-    bottom: 0;
+    background-color: #FF8700;
+    color: white;
 }
 .footer .footer-container {
     padding: 10px 5%;
@@ -154,16 +170,26 @@ blockquote {
 .footer-fade{
     opacity: 0.3;
 }
-
 .clipboard img {
     margin: 8px;
     width: 20px;
     height: 20px;
-    background-color: hsl(185, 88%, 83%);
-    padding: 2px;
+    background-color: rgba(0,0,0,0);
+    padding: 3px;
     border-radius: 4px;
     cursor: pointer;
 }
 .clipboard img.clicked-clip{
-    background-color: #5c6663;
+    background-color: #ff8700;
+    border-radius: 4px;
+}
+@media (max-width: 1000px){
+    .topics-container .container-card{
+        width: 45%;
+    }
+}
+@media (max-width: 600px){
+    .topics-container .container-card{
+        width: 100%;
+    }
 }
