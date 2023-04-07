@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" href="../img/logo.png" type="image/x-icon">
+    <title>Composer Sitepackage Installation</title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <button class="button-prev" onclick="history.back()"><< Back</button>
+    <div class="container">
+        <h2>How to install a Sitepackage in a composer installation:</h2>
+        <p>
+            First we must create all the files necessary for a sitepackage. The quickes way is to go ahead and download one for free in 
+            <a href="https://www.sitepackagebuilder.com/">
+              <strong>Sitepackage Builder</strong>
+            </a>
+        </p>
+        <p>
+          After we have downloaded our zip and unziped our sitepackage we can put it in our packages folder which we find in root. I have named my package playground
+        </p>
+        <div class="img-container"><img src="../img/sitepackage_1.png" /></div>
+        <p>
+          Now we have to include this sitepackage to <strong>composer.json</strong> file. This is how we can include a local package to composer:
+        </p>
+        <blockquote>
+          <div class="clipboard"><img class="clipboard-img" src="../img/clipboard.png"/></div>
+          <pre>
+            <code>
+              "repositories": [
+                {
+                  "type": "path",
+                  "url": "./packages/playground"
+                }
+              ],
+            </code>
+          </pre>
+        </blockquote>
+        <p> 
+          Go to terminal and run "composer install" This will automatically install all the packages included in the composer.json file including our sitepackage.
+        </p>
+        <p>
+          <span class="highlight">
+            *NOTE: The sitepackage from sitepackage builder is missing its version in the composer.js and that will display an error when you try the command "composer install".
+          </span>
+        </p>
+        <p>
+          Go ahead and add a version for it. I'll add 1.0.0 since it is created for the first time.
+        </p>
+        <blockquote>
+          <div class="clipboard"><img class="clipboard-img" src="../img/clipboard.png"/></div>
+          <pre>
+            <code>
+              {
+                "name": "contenance/playground",
+                "type": "typo3-cms-extension",
+                "description": "Just to play around",
+                "homepage": "https://gerald-playground.ddev.site/",
+                "license": ["GPL-2.0-or-later"],
+                "keywords": ["TYPO3 CMS"],
+                "version": "1.0.0",
+                "require": {
+                    "bk2k/bootstrap-package": "^12.0"
+                },
+                "autoload": {
+                    "psr-4": {
+                        "Contenance\\Playground\\": "Classes/"
+                    }
+                },
+                "extra": {
+                    "typo3/cms": {
+                        "extension-key": "playground"
+                    }
+                }
+            }
+            </code>
+          </pre>
+        </blockquote>
+        <p>
+          Now our sitepackage should be visible in the extensions in dashboard.
+        </p>
+        <div class="img-container"><img src="../img/sitepackage_2.png" /></div>
+        <p>
+          Last step to do is to update our database. To do this we need to go to "Maintenance" >> "Analyze Database Structure" and click "Apply Selected Changes". 
+        </p>
+        <div class="img-container"><img src="../img/sitepackage_3.png" /></div>
+        <p>
+          <span class="highlight">
+            *NOTE: Don't forget to go to "Maintenance" >> "Flush TYPO3 and PHP Cache" to be sure that the cache has been flushed.
+          </span>
+        </p>
+        <p>
+          Congrats on the new Sitepackage you have created! Build some awesome stuff! 
+        </p>
+    </div>   
+    <div class="footer">
+      <div class="footer-container">
+          <h3>TYPO3 — the Professional, Flexible Content Management System</h3>
+          <div class="footer-info">
+              <div>
+                  <p>Author: <a href="https://www.linkedin.com/in/gerald-ibra-15a722168/" class="color-y" target="_blank">Gerald Ibra</a></p>
+                  <p>Company: <a href="https://contenance.de/" class="color-y" target="_blank">Contenance GmbH</a></p>
+              </div>
+              <div>
+                  <p>Email1: <a class="color-y" href = "mailto: geri.ibra@gmail.com">ibra@contenance.de</a></p>
+                  <p>Email2: <a class="color-y" href = "mailto: geri.ibra@gmail.com">geri.ibra@gmail.com</a></p>
+              </div>
+          </div>
+      </div>
+    </div>
+	<script src="../js/topics.js"></script>
+  </body>
+</html>
